@@ -18,9 +18,9 @@ exports.seed = function (knex, Promise) {
         .then((insertedArtciles) => {
             const formattedDate = formatDate(commentData);
             const reference = createRef(insertedArtciles);
-            const commentsToInsert = formatCommentData(references, articleData)
-            console.log(commentsToInsert)
-            return knex.insert(formattedDate).into('comments');
+            const commentsToInsert = formatCommentData(reference, commentData)
+            //console.log(commentsToInsert)
+            return knex.insert(commentsToInsert).into('comments');
         });
 };
 
