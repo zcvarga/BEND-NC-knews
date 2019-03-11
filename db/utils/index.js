@@ -24,3 +24,15 @@ exports.createRef = (data) => {
   //console.log(resultsObj)
   return resultsObj;
 }
+
+
+exports.formatCommentData = (ids, oldComments) => {
+  const arrayRes = oldComments.map(element => {
+    element.article_id = ids[element.article_id]
+    delete element.belongs_to;
+    return element;
+  })
+  console.log(arrayRes)
+  return arrayRes;
+
+}
