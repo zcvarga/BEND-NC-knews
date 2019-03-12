@@ -23,4 +23,4 @@ exports.postArticles = (req, res, next) => {
     .then(([article]) => {
       res.status(201).send({ article });
     });
-}
+};

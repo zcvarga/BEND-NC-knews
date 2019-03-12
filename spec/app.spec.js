@@ -107,17 +107,17 @@ describe('/', () => {
             it('POST status: 201, returns the new article as it appears in the database', () => {
                 const articleToPost = {
                     title: 'Article to insert into database',
-                    body: 'This is a nice long article about the difficulties of inserting into the articles table.',
-                    topic: 'coding',
-                    username: 'zcvarga'
+                    body: 'This is a nice long article about the difficulties of inserting into the articles table and cats, because cats are the best.',
+                    topic: 'cats',
+                    author: 'butter_bridge',
                 };
                 return request.post('/api/articles')
                     .send(articleToPost)
                     .expect(201)
                     .then(({ body }) => {
-                        console.log(body)
-                        // expect(body.article).to.contain.keys();
-                        // expect(body.article).to.equal();
+                        // console.log(body);
+                        expect(body.article).to.contain.keys('title', 'article_id', 'body', 'votes', 'topic', 'author', 'created_at');
+                        expect(body.article.author).to.equal(articleToPost.author);
                     });
             });
         });
