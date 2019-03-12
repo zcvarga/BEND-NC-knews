@@ -36,5 +36,27 @@ describe('/', () => {
           });
       });
     });
+    describe('/articles', () => {
+      it('GET status:200, returns the articles in an array', () => request.get('/api/articles')
+        .expect(200)
+        .then(({ body }) => {
+          // console.log(body);
+          expect(body.articles).to.be.an('array');
+          expect(body.articles[0]).to.contain.keys('article_id', 'author', 'title', 'topic', 'created_at', 'votes', 'comment_count');
+        }));
+      it('GET status: 200, returns the article(s) requested in the query by author', () => request.get('/api/articles?author=butter_bridge')
+        .expect(200)
+        .then((res) => {
+          // console.log(res.body);
+          expect(res.body.articles[0].author).to.equal('butter_bridge');
+          expect(res.body.articles.length).to.equal(3);
+        }));
+      it('GET status: 200, returns the article(s) requested in the query by topic', () => request.get('/api/articles?topic=cats')
+        .expect(200)
+        .then((res) => {
+          console.log(res.body.articles[0].topic);
+          expect(res.body.articles[0].topic).to.equal('cats');
+        }));
+    });
   });
 });

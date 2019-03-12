@@ -2,12 +2,14 @@ const moment = require('moment');
 
 exports.formatDate = (data) => {
   // console.log(data[0])
-  data.forEach((element) => {
+  const formattedData = data.map((element) => {
     // element.created_at = new Date(element.created_at).toISOString().split('T')[0];
-    element.created_at = moment(element.created_at).format('YYYY-MM-DD');
+    const newElement = { ...element };
+    newElement.created_at = moment(element.created_at).format('YYYY-MM-DD');
+    return newElement;
   });
   // console.log(data[0])
-  return data;
+  return formattedData;
 };
 
 
