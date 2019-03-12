@@ -1,4 +1,4 @@
-const { getArticles, insertTopic } = require('../models/articles');
+const { getArticles, insertArticle } = require('../models/articles');
 
 exports.sendArticles = (req, res, next) => {
   const { author, topic } = req.query;
@@ -16,3 +16,11 @@ exports.sendArticles = (req, res, next) => {
     res.status(200).send({ articles });
   });
 };
+
+exports.postArticles = (req, res, next) => {
+  const articleToPost = req.body;
+  insertArticle(articleToPost)
+    .then(([article]) => {
+      res.status(201).send({ article });
+    });
+}
