@@ -12,30 +12,29 @@ exports.formatDate = (data) => {
 
 
 exports.createRef = (data) => {
-  const array = Object.values(data)
-  //console.log(Object.values(array[0]))
+  const array = Object.values(data);
+  // console.log(Object.values(array[0]))
   const resultsObj = {};
-  const result = array.map(element => {
+  const result = array.map((element) => {
     // console.log(element);
-    let value = element['article_id'];
-    let key = element['title'];
+    const value = element.article_id;
+    const key = element.title;
 
     resultsObj[key] = value;
   });
-  //console.log(resultsObj)
+  // console.log(resultsObj)
   return resultsObj;
-}
+};
 
 
 exports.formatCommentData = (ids, oldComments) => {
   // console.log(oldComments)
-  const arrayRes = oldComments.map(element => {
-    element.article_id = ids[element.belongs_to]
+  const arrayRes = oldComments.map((element) => {
+    element.article_id = ids[element.belongs_to];
     // console.log(ids[element.id]);
     delete element.belongs_to;
     return element;
-  })
+  });
   // console.log(arrayRes)
   return arrayRes;
-
-}
+};
