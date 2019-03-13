@@ -12,8 +12,13 @@ const request = supertest(app);
 describe('/', () => {
     beforeEach(() => connection.seed.run());
     after(() => connection.destroy());
-
     describe('/api', () => {
+
+        it('GET status:200, return all API endpoints', () => {
+
+        });
+
+
         describe('/topics', () => {
             it('GET status: 200, returns the topics in an array', () => request.get('/api/topics')
                 .expect(200)
@@ -119,6 +124,121 @@ describe('/', () => {
                         expect(body.article).to.contain.keys('title', 'article_id', 'body', 'votes', 'topic', 'author', 'created_at');
                         expect(body.article.author).to.equal(articleToPost.author);
                     });
+            });
+
+            describe('/:article_id', () => {
+                it('GET status: 200, returns the article which belongs to the article id', () => request.get('/api/articles/3')
+                    .expect(200)
+                    .then(({ body }) => {
+                        // console.log(body.article);
+                        expect(body.article[0]).to.contain.keys('title', 'article_id', 'body', 'votes', 'topic', 'author', 'created_at', 'comment_count');
+                        expect(body.article[0].article_id).to.equal(3);
+                    }));
+                it('GET status: 200, returns the article which belongs to the article id', () => request.get('/api/articles/1')
+                    .expect(200)
+                    .then(({ body }) => {
+                        // console.log(body.article);
+                        expect(body.article[0]).to.contain.keys('title', 'article_id', 'body', 'votes', 'topic', 'author', 'created_at', 'comment_count');
+                        expect(body.article[0].article_id).to.equal(1);
+                    }));
+                it('PATCH status: 200, returns the updated article ', () => {
+                    const infoToUpdate = { inc_votes: 50 };
+                    return request.patch('/api/articles/1')
+                        .send(infoToUpdate)
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.article[0]).to.contain.keys('article_id', 'title', 'body', 'votes', 'topic', 'author', 'created_at');
+                            expect(body.article[0].votes).to.equal(150);
+                        });
+                });
+                it('DELETE status:204, when given a valid a valid article_id', () => request.delete('/api/articles/1').expect(204));
+
+                describe('/comments', () => {
+                    it('GET status: 200, returns the comments which belong to the article id', () => request.get('/api/articles/1/comments').expect(200)
+                        .then(({ body }) => {
+                            expect(body.comments.length).to.equal(13);
+                            expect(body.comments[0]).to.contain.keys('comment_id', 'votes', 'created_at', 'created_by', 'body');
+                        }));
+                    it('GET status: 200, returns the comments sorted by the column specified (comment_id)', () => request.get('/api/articles/1/comments?sort_by=comment_id')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.comments[0].comment_id >= body.comments[1].comment_id).to.be.true;
+                            expect(body.comments[2].comment_id >= body.comments[3].comment_id).to.be.true;
+                            expect(body.comments[3].comment_id >= body.comments[4].comment_id).to.be.true;
+                            expect(body.comments[1].comment_id >= body.comments[5].comment_id).to.be.true;
+                        }));
+                    it('GET status: 200, returns the comments sorted by the column specified (comment_id)', () => request.get('/api/articles/1/comments?sort_by=votes&order=asc')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.comments[0].votes <= body.comments[1].votes).to.be.true;
+                            expect(body.comments[2].votes <= body.comments[3].votes).to.be.true;
+                            expect(body.comments[3].votes <= body.comments[4].votes).to.be.true;
+                            expect(body.comments[1].votes <= body.comments[5].votes).to.be.true;
+                        }));
+
+
+                    it('POST status: 201, returns the new comment as it appears in the database', () => {
+                        const commentToPost = {
+                            created_by: 'butter_bridge',
+                            body: 'this is a new comment for the article',
+                        };
+                        return request.post('/api/articles/3/comments')
+                            .send(commentToPost)
+                            .expect(201)
+                            .then(({ body }) => {
+                                expect(body.comment[0]).to.contain.keys('comment_id', 'votes', 'created_at', 'created_by', 'body');
+                                expect(body.comment[0].created_by).to.equal(commentToPost.created_by);
+                            });
+                    });
+                });
+            });
+        });
+
+        describe('/comments/:comment_id', () => {
+            it('PATCH status: 200, returns the updated comment ', () => {
+                const infoToUpdate = { inc_votes: 50 };
+                return request.patch('/api/comments/4')
+                    .send(infoToUpdate)
+                    .expect(200)
+                    .then(({ body }) => {
+                        // console.log(body);
+                        expect(body.comment[0]).to.contain.keys('article_id', 'body', 'comment_id', 'created_at', 'created_by', 'votes');
+                        expect(body.comment[0].votes).to.equal(-50);
+                    });
+            });
+            it('DELETE status: 204, when given a valid a valid comment_id', () => request.delete('/api/comments/4').expect(204));
+        });
+
+        describe('/users', () => {
+            it('GET status: 200, returns the users in an array', () => request.get('/api/users')
+                .expect(200)
+                .then(({ body }) => {
+                    // console.log(body);
+                    expect(body.users).to.be.an('array');
+                    expect(body.users[0]).to.contain.keys('username', 'name', 'avatar_url');
+                }));
+            it('POST status: 201, returns the new user as it appears in the database', () => {
+                const userToPost = {
+                    name: 'Susie Varga',
+                    username: 's_varga',
+                    avatar_url: 'avatar url here',
+                };
+                return request.post('/api/users')
+                    .send(userToPost)
+                    .expect(201)
+                    .then(({ body }) => {
+                        expect(body.user).to.contain.keys('username', 'name', 'avatar_url');
+                        expect(body.user.username).to.equal(userToPost.username);
+                    });
+            });
+            describe('/:user_id', () => {
+                it('GET status: 200, returns the user which belongs to the user id', () => request.get('/api/users/butter_bridge')
+                    .expect(200)
+                    .then(({ body }) => {
+                        // console.log(body.user);
+                        expect(body.user[0]).to.contain.keys('username', 'name', 'avatar_url');
+                        expect(body.user[0].username).to.equal('butter_bridge');
+                    }));
             });
         });
     });
