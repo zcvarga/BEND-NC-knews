@@ -12,6 +12,16 @@ exports.formatDate = (data) => {
   return formattedData;
 };
 
+exports.formatComments = (comments) => {
+  const formatted = [...comments];
+  formatted.map((comment) => {
+    comment.author = comment.created_by;
+    delete comment.created_by;
+  });
+  // console.log(formatted);
+  return formatted;
+};
+
 
 exports.createRef = (data) => {
   const array = Object.values(data);

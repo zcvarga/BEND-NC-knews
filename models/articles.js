@@ -2,7 +2,7 @@ const connection = require('../db/connection');
 
 exports.getArticles = (conditions, sort, order) => connection
 
-  .select('author', 'title', 'articles.article_id', 'topic', 'articles.created_at', 'articles.votes')
+  .select('articles.author', 'title', 'articles.article_id', 'topic', 'articles.created_at', 'articles.votes')
   .from('articles')
   .leftJoin('comments', 'articles.article_id', 'comments.article_id')
   .groupBy('articles.article_id')
@@ -16,7 +16,7 @@ exports.insertArticle = newArticle => connection.insert(newArticle).into('articl
 
 exports.getArticle = conditions => connection
 
-  .select('author', 'title', 'articles.article_id', 'topic', 'articles.created_at', 'articles.votes', 'articles.body')
+  .select('articles.author', 'title', 'articles.article_id', 'topic', 'articles.created_at', 'articles.votes', 'articles.body')
   .from('articles')
   .leftJoin('comments', 'articles.article_id', 'comments.article_id')
   .groupBy('articles.article_id')
@@ -35,7 +35,7 @@ exports.deleteArticle = conditions => connection.from('articles').where(conditio
 
 exports.getCommentsByArticleId = (sort, order, conditions) => connection
 
-  .select('comment_id', 'votes', 'created_at', 'created_by', 'body')
+  .select('comment_id', 'votes', 'created_at', 'author', 'body')
   .from('comments')
   .orderBy(sort, order)
   .where(conditions)

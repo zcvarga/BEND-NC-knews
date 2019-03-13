@@ -2,8 +2,9 @@ const {
   articleData, topicData, userData, commentData,
 } = require('../data');
 
-const { formatDate, createRef, formatCommentData } = require('../utils/index');
-
+const {
+  formatDate, createRef, formatCommentData, formatComments,
+} = require('../utils/index');
 
 exports.seed = function (knex, Promise) {
   // console.log(articleData);
@@ -17,10 +18,10 @@ exports.seed = function (knex, Promise) {
       const formattedDate = formatDate(articleData);
       return knex.insert(formattedDate).into('articles').returning('*');
     })
-    .then((insertedArtciles) => {
-      const formattedDate = formatDate(commentData);
+    .then((insertedArticles) => {
+      const formattedDate = formatDate(formatComments(commentData));
       // console.log(insertedArtciles)
-      const reference = createRef(insertedArtciles);
+      const reference = createRef(insertedArticles);
       // console.log(reference);
       const commentsToInsert = formatCommentData(reference, formattedDate);
       // console.log(commentsToInsert);

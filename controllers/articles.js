@@ -5,7 +5,7 @@ const {
 exports.sendArticles = (req, res, next) => {
   const { author, topic } = req.query;
   const whereConditions = {};
-  if (author) whereConditions.author = author;
+  if (author) whereConditions['articles.author'] = author;
   if (topic) whereConditions.topic = topic;
   const sort = req.query.sort_by || 'created_at';
   const order = req.query.order || 'desc';

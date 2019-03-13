@@ -13,7 +13,7 @@ apiRouter.use('/comments', commentsRouter);
 
 apiRouter.use('/users', usersRouter);
 
-//apiRouter.get( get json send it to user)
+// apiRouter.get( get json send it to user)
 
 
 module.exports = apiRouter;
