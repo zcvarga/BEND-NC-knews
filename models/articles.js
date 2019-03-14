@@ -25,6 +25,7 @@ exports.getArticle = conditions => connection
   .returning('*');
 
 exports.updateArticle = (conditions, inc_votes) => connection
+
   .select('*')
   .from('articles')
   .where(conditions)

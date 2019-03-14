@@ -9,7 +9,8 @@ exports.patchComment = (req, res, next) => {
 
   updateComment(whereConditions, inc_votes).then((comment) => {
     res.status(200).send({ comment });
-  });
+  })
+    .catch(next);
 };
 
 
@@ -20,5 +21,6 @@ exports.removeComment = (req, res, next) => {
 
   deleteComment(whereConditions).then(() => {
     res.sendStatus(204);
-  });
+  })
+    .catch(next);
 };

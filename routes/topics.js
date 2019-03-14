@@ -4,6 +4,9 @@ const { sendTopics, postTopic } = require('../controllers/topics');
 // topicsRouter.get('/', sendTopics);
 topicsRouter.route('/')
   .get(sendTopics)
-  .post(postTopic);
+  .post(postTopic)
+  .all((req, res, next) => {
+    next({ status: 405 });
+  });
 
 module.exports = topicsRouter;

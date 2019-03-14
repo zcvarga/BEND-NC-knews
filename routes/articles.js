@@ -6,7 +6,10 @@ const {
 
 articlesRouter.route('/')
   .get(sendArticles)
-  .post(postArticles);
+  .post(postArticles)
+  .all((req, res, next) => {
+    next({ status: 405 });
+  });
 
 articlesRouter.route('/:article_id')
   .get(sendArticle)

@@ -9,10 +9,14 @@ exports.sendArticles = (req, res, next) => {
   if (topic) whereConditions.topic = topic;
   const sort = req.query.sort_by || 'created_at';
   const order = req.query.order || 'desc';
-
-  getArticles(whereConditions, sort, order).then((articles) => {
-    res.status(200).send({ articles });
-  });
+  if (order !== 'desc' && order !== 'asc') next({ status: 400 });
+  else {
+    getArticles(whereConditions, sort, order).then((articles) => {
+      if (articles[0]) res.status(200).send({ articles });
+      else return Promise.reject({ status: 404 });
+    })
+      .catch(next);
+  }
 };
 
 exports.postArticles = (req, res, next) => {
@@ -20,7 +24,8 @@ exports.postArticles = (req, res, next) => {
   insertArticle(articleToPost)
     .then(([article]) => {
       res.status(201).send({ article });
-    });
+    })
+    .catch(next);
 };
 
 exports.sendArticle = (req, res, next) => {
@@ -28,8 +33,10 @@ exports.sendArticle = (req, res, next) => {
   const whereConditions = {};
   if (article_id) whereConditions['articles.article_id'] = article_id;
   getArticle(whereConditions).then((article) => {
-    res.status(200).send({ article });
-  });
+    if (article[0]) res.status(200).send({ article });
+    else return Promise.reject({ status: 404 });
+  })
+    .catch(next);
 };
 
 exports.patchArticle = (req, res, next) => {
@@ -38,9 +45,13 @@ exports.patchArticle = (req, res, next) => {
   if (article_id) whereConditions.article_id = article_id;
   const { inc_votes } = req.body;
 
-  updateArticle(whereConditions, inc_votes).then((article) => {
-    res.status(200).send({ article });
-  });
+  if (!/[0-9]+/.test(inc_votes)) next({ status: 400 });
+  else {
+    updateArticle(whereConditions, inc_votes).then((article) => {
+      res.status(200).send({ article });
+    })
+      .catch(next);
+  }
 };
 
 exports.removeArticle = (req, res, next) => {
@@ -50,7 +61,8 @@ exports.removeArticle = (req, res, next) => {
 
   deleteArticle(whereConditions).then(() => {
     res.sendStatus(204);
-  });
+  })
+    .catch(next);
 };
 
 exports.sendCommentsByArticleId = (req, res, next) => {
@@ -62,7 +74,8 @@ exports.sendCommentsByArticleId = (req, res, next) => {
 
   getCommentsByArticleId(sort, order, whereConditions).then((comments) => {
     res.status(200).send({ comments });
-  });
+  })
+    .catch(next);
 };
 
 exports.postCommentByArticleId = (req, res, next) => {
@@ -74,5 +87,6 @@ exports.postCommentByArticleId = (req, res, next) => {
 
   insertCommentByArticleId(dataForCommentToInsert).then((comment) => {
     res.status(201).send({ comment });
-  });
+  })
+    .catch(next);
 };
