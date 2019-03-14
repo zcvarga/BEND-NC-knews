@@ -13,18 +13,19 @@ exports.formatDate = (data) => {
 };
 
 exports.formatComments = (comments) => {
-  const formatted = [...comments];
-  formatted.map((comment) => {
+  const newComments = [...comments];
+  newComments.map((comment) => {
     comment.author = comment.created_by;
     delete comment.created_by;
   });
   // console.log(formatted);
-  return formatted;
+  return newComments;
 };
 
 
 exports.createRef = (data) => {
-  const array = Object.values(data);
+  const newData = [...data];
+  const array = Object.values(newData);
   // console.log(Object.values(array[0]))
   const resultsObj = {};
   const result = array.map((element) => {
@@ -41,7 +42,8 @@ exports.createRef = (data) => {
 
 exports.formatCommentData = (ids, oldComments) => {
   // console.log(oldComments)
-  const arrayRes = oldComments.map((element) => {
+  const newOldComments = [...oldComments];
+  const arrayRes = newOldComments.map((element) => {
     element.article_id = ids[element.belongs_to];
     // console.log(ids[element.id]);
     delete element.belongs_to;
