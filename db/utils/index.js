@@ -1,54 +1,45 @@
 const moment = require('moment');
 
 exports.formatDate = (data) => {
-  // console.log(data[0])
   const formattedData = data.map((element) => {
     // element.created_at = new Date(element.created_at).toISOString().split('T')[0];
     const newElement = { ...element };
     newElement.created_at = moment(element.created_at).format('YYYY-MM-DD');
     return newElement;
   });
-  // console.log(data[0])
   return formattedData;
 };
 
 exports.formatComments = (comments) => {
-  const newComments = [...comments];
-  newComments.map((comment) => {
+  const formatted = [...comments];
+  formatted.map((comment) => {
     comment.author = comment.created_by;
     delete comment.created_by;
   });
   // console.log(formatted);
-  return newComments;
+  return formatted;
 };
 
 
 exports.createRef = (data) => {
-  const newData = [...data];
-  const array = Object.values(newData);
-  // console.log(Object.values(array[0]))
+  const array = Object.values(data);
   const resultsObj = {};
-  const result = array.map((element) => {
-    // console.log(element);
-    const value = element.article_id;
-    const key = element.title;
-
+  array.map((element) => {
+    const newElement = { ...element };
+    const value = newElement.article_id;
+    const key = newElement.title;
     resultsObj[key] = value;
   });
-  // console.log(resultsObj)
   return resultsObj;
 };
 
 
 exports.formatCommentData = (ids, oldComments) => {
-  // console.log(oldComments)
-  const newOldComments = [...oldComments];
-  const arrayRes = newOldComments.map((element) => {
-    element.article_id = ids[element.belongs_to];
-    // console.log(ids[element.id]);
-    delete element.belongs_to;
-    return element;
+  const arrayRes = oldComments.map((element) => {
+    const newElement = { ...element };
+    newElement.article_id = ids[newElement.belongs_to];
+    delete newElement.belongs_to;
+    return newElement;
   });
-  // console.log(arrayRes)
   return arrayRes;
 };
