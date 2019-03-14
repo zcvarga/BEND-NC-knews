@@ -21,7 +21,8 @@ exports.sendUser = (req, res, next) => {
   const whereConditions = {};
   if (username) whereConditions.username = username;
   getUser(whereConditions).then((user) => {
-    res.status(200).send({ user });
+    if (user[0]) res.status(200).send({ user });
+    else return Promise.reject({ status: 404 });
   })
     .catch(next);
 };

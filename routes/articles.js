@@ -18,6 +18,9 @@ articlesRouter.route('/:article_id')
 
 articlesRouter.route('/:article_id/comments')
   .get(sendCommentsByArticleId)
-  .post(postCommentByArticleId);
+  .post(postCommentByArticleId)
+  .all((req, res, next) => {
+    next({ status: 405 });
+  });
 
 module.exports = articlesRouter;

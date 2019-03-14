@@ -107,7 +107,7 @@ describe('/', () => {
           expect(res.body.articles[0].topic).to.equal('cats');
           expect(res.body.articles.length).to.equal(1);
         }));
-      it('GET status: 400, there is no such topic in the database', () => request.get('/api/articles?topic=test_topic')
+      it('GET status: 404, there is no such topic in the database', () => request.get('/api/articles?topic=test_topic')
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).to.equal('Route Not Found');
@@ -231,7 +231,7 @@ describe('/', () => {
           .then(({ body }) => {
             expect(body.msg).to.eql('Bad Request');
           }));
-        it('GET status: 404, bad request (valid article_id, but doesnt exist)', () => request.get('/api/articles/99999')
+        it('GET status: 404, valid article_id, but doesnt exist', () => request.get('/api/articles/99999')
           .expect(404)
           .then(({ body }) => {
             expect(body.msg).to.eql('Route Not Found');
@@ -246,7 +246,7 @@ describe('/', () => {
               expect(body.article[0].votes).to.equal(150);
             });
         });
-        it('PATCH status:  ', () => {
+        it('PATCH status: 400, value to inceremnt by not valid', () => {
           const infoToUpdate = { inc_votes: 'cats' };
           return request.patch('/api/articles/1')
             .send(infoToUpdate)
@@ -255,13 +255,49 @@ describe('/', () => {
               expect(body.msg).to.equal('Bad Request');
             });
         });
+        it('PATCH status: 400, no object containing value to incerement by on request body', () => request.patch('/api/articles/1')
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.equal('Bad Request');
+          }));
+        it('PATCH status: 400, value to inceremnt by not valid (more than one porperties on req body)', () => {
+          const infoToUpdate = { inc_votes: 'cats', test: 'test_value' };
+          return request.patch('/api/articles/1')
+            .send(infoToUpdate)
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).to.equal('Bad Request');
+            });
+        });
         it('DELETE status:204, when given a valid a valid article_id', () => request.delete('/api/articles/1').expect(204));
-
+        it('DELETE status:404, when given a valid a valid article_id, which does not exist in the database', () => request.delete('/api/articles/11111').expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.equal('Route Not Found');
+          }));
+        it('DELETE status:400, when given a valid a not valid article_id', () => request.delete('/api/articles/cats').expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.equal('Bad Request');
+          }));
         describe('/comments', () => {
           it('GET status: 200, returns the comments which belong to the article id', () => request.get('/api/articles/1/comments').expect(200)
             .then(({ body }) => {
               expect(body.comments.length).to.equal(13);
               expect(body.comments[0]).to.contain.keys('comment_id', 'votes', 'created_at', 'author', 'body');
+            }));
+          it('PATCH status: 405, bad method ', () => request.patch('/api/articles/1/comments')
+            .expect(405)
+            .then(({ body }) => {
+              expect(body.msg).to.equal('Method Not Allowed');
+            }));
+          it('GET status: 400, bad request (not valid article_id)', () => request.get('/api/articles/cats/comments')
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).to.eql('Bad Request');
+            }));
+          it('GET status: 404, valid article_id, but doesnt exist', () => request.get('/api/articles/99999/comments')
+            .expect(404)
+            .then(({ body }) => {
+              expect(body.msg).to.eql('Route Not Found');
             }));
           it('GET status: 200, returns the comments sorted by the column specified (comment_id)', () => request.get('/api/articles/1/comments?sort_by=comment_id')
             .expect(200)
@@ -271,6 +307,11 @@ describe('/', () => {
               expect(body.comments[3].comment_id >= body.comments[4].comment_id).to.be.true;
               expect(body.comments[1].comment_id >= body.comments[5].comment_id).to.be.true;
             }));
+          it('GET status: 400, column to sort by does not exist (test)', () => request.get('/api/articles/1/comments?sort_by=test_column')
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).to.equal('Bad Request');
+            }));
           it('GET status: 200, returns the comments sorted by the column specified (comment_id)', () => request.get('/api/articles/1/comments?sort_by=votes&order=asc')
             .expect(200)
             .then(({ body }) => {
@@ -279,8 +320,11 @@ describe('/', () => {
               expect(body.comments[3].votes <= body.comments[4].votes).to.be.true;
               expect(body.comments[1].votes <= body.comments[5].votes).to.be.true;
             }));
-
-
+          it('GET status: 400, bad request, can only sort desc or asc', () => request.get('/api/articles/1/comments?order=cats')
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).to.equal('Bad Request');
+            }));
           it('POST status: 201, returns the new comment as it appears in the database', () => {
             const commentToPost = {
               author: 'butter_bridge',
@@ -292,6 +336,29 @@ describe('/', () => {
               .then(({ body }) => {
                 expect(body.comment[0]).to.contain.keys('comment_id', 'votes', 'created_at', 'author', 'body');
                 expect(body.comment[0].author).to.equal(commentToPost.author);
+              });
+          });
+          it('POST status: 400, request body is missing something', () => {
+            const commentToPost = {
+              author: 'butter_bridge',
+            };
+            return request.post('/api/articles/1/comments')
+              .send(commentToPost)
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.msg).to.equal('Bad Request');
+              });
+          });
+          it('POST status: 400, author doesnt exist', () => {
+            const articleToPost = {
+              body: 'This is a nice long comment about the difficulties of inserting into the articles table and cats, because cats are the best.',
+              author: 'butter_fly',
+            };
+            return request.post('/api/articles/1/comments')
+              .send(articleToPost)
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.msg).to.equal('Bad Request');
               });
           });
         });
@@ -310,8 +377,40 @@ describe('/', () => {
             expect(body.comment[0].votes).to.equal(-50);
           });
       });
+      it('PATCH status: 400, value to increment by is not valid (not a number)', () => {
+        const infoToUpdate = { inc_votes: 'cats' };
+        return request.patch('/api/comments/1')
+          .send(infoToUpdate)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.equal('Bad Request');
+          });
+      });
+      it('PATCH status: 400, value to increment by is not valid nothing to increment by', () => request.patch('/api/comments/1')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal('Bad Request');
+        }));
+      it('PATCH status: 400, value to increment by is not valid (object has another property)', () => {
+        const infoToUpdate = { inc_votes: 'cats', test: 'test_value' };
+        return request.patch('/api/comments/1')
+          .send(infoToUpdate)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.equal('Bad Request');
+          });
+      });
       it('DELETE status: 204, when given a valid a valid comment_id', () => request.delete('/api/comments/4').expect(204));
+      it('DELETE status:404, when given a valid a valid comment_id, which does not exist in the database', () => request.delete('/api/comments/11111').expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.equal('Route Not Found');
+        }));
+      it('DELETE status:400, when given a valid a not valid comment_id', () => request.delete('/api/comments/cats').expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal('Bad Request');
+        }));
     });
+
 
     describe('/users', () => {
       it('GET status: 200, returns the users in an array', () => request.get('/api/users')
@@ -335,7 +434,37 @@ describe('/', () => {
             expect(body.user.username).to.equal(userToPost.username);
           });
       });
-      describe('/:user_id', () => {
+      it('POST status: 400, request body is missing something', () => {
+        const userToPost = {
+          username: 's_varga',
+          avatar_url: 'avatar url here',
+        };
+        return request.post('/api/users')
+          .send(userToPost)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.equal('Bad Request');
+          });
+      });
+      it('POST status: 422, user already exists', () => {
+        const userToPost = {
+          name: 'Susie Varga',
+          username: 'butter_bridge',
+          avatar_url: 'avatar url here',
+        };
+        return request.post('/api/users')
+          .send(userToPost)
+          .expect(422)
+          .then(({ body }) => {
+            expect(body.msg).to.equal('Duplicate key value violates unique constraint');
+          });
+      });
+      it('PATCH status: 405, bad method', () => request.patch('/api/users')
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal('Method Not Allowed');
+        }));
+      describe('/:username', () => {
         it('GET status: 200, returns the user which belongs to the user id', () => request.get('/api/users/butter_bridge')
           .expect(200)
           .then(({ body }) => {
@@ -343,7 +472,14 @@ describe('/', () => {
             expect(body.user[0]).to.contain.keys('username', 'name', 'avatar_url');
             expect(body.user[0].username).to.equal('butter_bridge');
           }));
+        it('GET status: 404, username doesnt exist', () => request.get('/api/users/test_user')
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.eql('Route Not Found');
+          }));
       });
     });
   });
 });
+
+// ({ sort_by = 'created_at', order = 'desc', ...whereConditions }) or in knex

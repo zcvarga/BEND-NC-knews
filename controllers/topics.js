@@ -12,7 +12,6 @@ exports.postTopic = (req, res, next) => {
   const topicToPost = req.body;
   insertTopic(topicToPost)
     .then(([topic]) => {
-      // console.log(topic);
       res.status(201).send({ topic });
     })
     .catch(next);

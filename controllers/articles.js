@@ -59,10 +59,11 @@ exports.removeArticle = (req, res, next) => {
   const whereConditions = {};
   if (article_id) whereConditions.article_id = article_id;
 
-  deleteArticle(whereConditions).then(() => {
+
+  deleteArticle(whereConditions).then((numberOfThingsDeleted) => {
+    if (!numberOfThingsDeleted) return Promise.reject({ status: 404 });
     res.sendStatus(204);
-  })
-    .catch(next);
+  }).catch(next);
 };
 
 exports.sendCommentsByArticleId = (req, res, next) => {
@@ -71,11 +72,14 @@ exports.sendCommentsByArticleId = (req, res, next) => {
   if (article_id) whereConditions.article_id = article_id;
   const sort = req.query.sort_by || 'created_at';
   const order = req.query.order || 'desc';
-
-  getCommentsByArticleId(sort, order, whereConditions).then((comments) => {
-    res.status(200).send({ comments });
-  })
-    .catch(next);
+  if (order !== 'desc' && order !== 'asc') next({ status: 400 });
+  else {
+    getCommentsByArticleId(sort, order, whereConditions).then((comments) => {
+      if (comments[0]) res.status(200).send({ comments });
+      else return Promise.reject({ status: 404 });
+    })
+      .catch(next);
+  }
 };
 
 exports.postCommentByArticleId = (req, res, next) => {
