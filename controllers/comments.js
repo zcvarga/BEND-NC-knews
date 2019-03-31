@@ -9,7 +9,7 @@ exports.patchComment = (req, res, next) => {
 
   if (!/[0-9]+/.test(inc_votes)) next({ status: 400 });
   else {
-    updateComment(whereConditions, inc_votes).then((comment) => {
+    updateComment(whereConditions, inc_votes).then(([comment]) => {
       res.status(200).send({ comment });
     })
       .catch(next);

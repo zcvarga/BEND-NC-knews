@@ -11,12 +11,12 @@ exports.formatDate = (data) => {
 };
 
 exports.formatComments = (comments) => {
-  const formatted = [...comments];
-  formatted.map((comment) => {
-    comment.author = comment.created_by;
-    delete comment.created_by;
+  const formatted = comments.map((element) => {
+    const newElement = { ...element };
+    newElement.author = element.created_by;
+    delete newElement.created_by;
+    return newElement;
   });
-  // console.log(formatted);
   return formatted;
 };
 

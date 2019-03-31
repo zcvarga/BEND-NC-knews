@@ -13,7 +13,7 @@ exports.sendArticles = (req, res, next) => {
   else {
     getArticles(whereConditions, sort, order).then((articles) => {
       if (articles[0]) res.status(200).send({ articles });
-      else return Promise.reject({ status: 404 });
+      else res.sendStatus(204);
     })
       .catch(next);
   }
@@ -32,8 +32,8 @@ exports.sendArticle = (req, res, next) => {
   const { article_id } = req.params;
   const whereConditions = {};
   if (article_id) whereConditions['articles.article_id'] = article_id;
-  getArticle(whereConditions).then((article) => {
-    if (article[0]) res.status(200).send({ article });
+  getArticle(whereConditions).then(([article]) => {
+    if (article) res.status(200).send({ article });
     else return Promise.reject({ status: 404 });
   })
     .catch(next);
@@ -47,7 +47,7 @@ exports.patchArticle = (req, res, next) => {
 
   if (!/[0-9]+/.test(inc_votes)) next({ status: 400 });
   else {
-    updateArticle(whereConditions, inc_votes).then((article) => {
+    updateArticle(whereConditions, inc_votes).then(([article]) => {
       res.status(200).send({ article });
     })
       .catch(next);
@@ -84,13 +84,22 @@ exports.sendCommentsByArticleId = (req, res, next) => {
 
 exports.postCommentByArticleId = (req, res, next) => {
   const { article_id } = req.params;
+
   const commentToPost = req.body;
+  const newCommentToPost = { ...commentToPost };
+  newCommentToPost.author = commentToPost.username;
+  delete newCommentToPost.username;
+
   const whereConditions = {};
   if (article_id) whereConditions.article_id = article_id;
-  const dataForCommentToInsert = { ...whereConditions, ...commentToPost };
+
+  const dataForCommentToInsert = { ...whereConditions, ...newCommentToPost };
 
   insertCommentByArticleId(dataForCommentToInsert).then((comment) => {
-    res.status(201).send({ comment });
+    console.log(comment)
+    if (comment) res.status(201).send({ comment });
+    else return Promise.reject({ status: 404 });
+
   })
     .catch(next);
 };

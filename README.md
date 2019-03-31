@@ -1,16 +1,20 @@
-# BE2-NC-Knews
+# Project Title
 
-## Northcoders News API
+Description
 
-### Background
+## Getting Started
 
-We will be building the API to use in the Northcoders News Sprint during the Front End block of the course.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-Our database will be PSQL, and you will interact with it using [Knex](https://knexjs.org).
+### Prerequisites
 
-#### NOTE 1:
+What things you need to install the software and how to install them
 
-For this sprint ensure you have the eslint extension installed in VS-Code as it will help to enforce best practices when you are writing your code.
+#### Installing
+
+A step by step series of examples that tell you how to get a development env running
+
+Say what the step will be
 
 #### NOTE 2:
 
