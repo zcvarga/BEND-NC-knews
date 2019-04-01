@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-
+const cors = require('cors');
 const app = express();
 const apiRouter = require('./routes/api');
 const {
@@ -8,7 +8,7 @@ const {
 } = require('./errors/index');
 
 app.use(bodyParser.json());
-
+app.use(cors());
 app.use('/api/', apiRouter);
 
 app.all('/*', (req, res, next) => {
@@ -28,7 +28,7 @@ if (port == null || port == '') {
   port = 8000;
 }
 app.listen(port);
-console.log('listening on port');
+console.log(`CORS-enabled web server listening on ${port}`);
 
 module.exports = app;
 
