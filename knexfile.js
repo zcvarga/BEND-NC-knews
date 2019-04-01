@@ -23,7 +23,7 @@ const dbConfig = {
   production: {
     ssl: true,
     connection: process.env.DATABASE_URL,
-  }
+  },
 };
 
 

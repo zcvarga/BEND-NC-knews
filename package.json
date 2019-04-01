@@ -16,15 +16,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/northcoders/BE2-NC-Knews.git"
+    "url": "git+https://github.com/zcvarga/BEND-NC-Knews.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/northcoders/BE2-NC-Knews/issues"
+    "url": "https://github.com/zcvarga/BEND-NC-Knews/issues"
   },
-  "homepage": "https://github.com/northcoders/BE2-NC-Knews#readme",
+  "homepage": "https://github.com/zcvarga/BEND-NC-Knews#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",

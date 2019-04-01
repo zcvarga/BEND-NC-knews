@@ -96,10 +96,9 @@ exports.postCommentByArticleId = (req, res, next) => {
   const dataForCommentToInsert = { ...whereConditions, ...newCommentToPost };
 
   insertCommentByArticleId(dataForCommentToInsert).then((comment) => {
-    console.log(comment)
+    console.log(comment);
     if (comment) res.status(201).send({ comment });
     else return Promise.reject({ status: 404 });
-
   })
     .catch(next);
 };
