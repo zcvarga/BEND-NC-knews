@@ -2,7 +2,6 @@ const ENV = process.env.NODE_ENV || 'development';
 
 const baseConfig = {
   client: 'pg',
-  ssl: true,
   seeds: {
     directory: './db/seed',
   },
@@ -22,7 +21,8 @@ const dbConfig = {
 
   },
   production: {
-    connection: process.env.DATABASE_URL || 'localhost',
+    ssl: true,
+    connection: process.env.DATABASE_URL,
   }
 };
 
